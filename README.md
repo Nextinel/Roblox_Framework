@@ -135,7 +135,7 @@ return {
     },
 }
 ```
-**Validator Documentation (for contract):** For advanced validation rules (optional fields, nested tables, caching), please read [VALIDATOR.md](VALIDATOR.md)
+> **Validator Documentation (for contract):** For advanced validation rules (optional fields, nested tables, caching), please read [VALIDATOR.md](VALIDATOR.md)
 
 ### Firing to Server (Client only):
 If your client module needs to send data to the server, use `setupFireServer`. The framework will find the remote and give you a network object
