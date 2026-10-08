@@ -1,6 +1,16 @@
 # Roblox Framework
 Server-client framework to build your games easily
 
+## Support & Community
+- **Issues:** If you found a bug or have a suggestion, please open an [Issue](../../issues)
+
+## Contributing
+Pull requests are welcome! If you want to add a new feature or fix a bug:
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/FeatureName`)
+3. Commit your changes
+4. Open a Pull Request
+
 ## Installation
 1. Go to the [Releases](../../releases) tab
 2. Download the latest `framework.rbxm`
@@ -161,5 +171,8 @@ return {
 }
 ```
 
+## Credits
+- **[ProfileStore](https://github.com/MadStudioRoblox/ProfileStore)** by **loleris** - Used for DataStore handling in the `DataStoreService` module
+
 ## License
-This project is licensed under the MIT License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details
