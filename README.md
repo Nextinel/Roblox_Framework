@@ -35,7 +35,6 @@ To update: download the new `.rbxm` from the Releases tab and replace the old fi
 - ReplicatedStorage
   - Assets
   - Modules
-  - Remotes
   - HUD
 - ServerScriptService
   - Modules
@@ -117,11 +116,13 @@ return {
 ## Network (Remotes)
 You don't need to manually find Remotes or connect `OnServerEvent`/`OnClientEvent`. Just define a `network` table inside your module
 
+Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`)
+
 ### Listening to a Remote (Server & Client):
 ```lua
 return {
     network = {
-        remote = "RemoteName",
+        channel = "ChannelName",
         
         -- Optional: Type and argument count validation
         contract = {
@@ -137,23 +138,45 @@ return {
 ```
 > **Validator Documentation (for contract):** For advanced validation rules (optional fields, nested tables, caching), please read [VALIDATOR.md](VALIDATOR.md)
 
-### Firing to Server (Client only):
+### Firing (Server):
+Server modules get the channel directly through `Jolt`:
+
+```lua
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+local jolt = require(replicatedStorage.Modules.Global.Jolt)
+
+local channel = jolt.Server("ChannelName")
+
+return {
+	playerAdded = function(player)
+		channel:Fire(player, "welcome")
+	end,
+	
+	update = function(dt)
+		channel:FireAll("tick", dt)
+        -- channel:FireExcept(player, "skip") -- skip specific player
+	end,
+}
+```
+
+### Firing (Client):
 If your client module needs to send data to the server, use `setupFireServer`. The framework will find the remote and give you a network object
 ```lua
-local remotes = {}
+local channels = {}
 
 return {
     setupFireServer = {
-        remoteNames = {"RemoteName"},
+        channelsNames = {"ChannelName"},
         
         setupRemote = function(name, network)
-            remotes[name] = network
+            channels[name] = network
         end,
     },
     
     update = function()
-        if remotes.RemoteName then
-            remotes.RemoteName:fireServer("hello", 123)
+        if channels.ChannelName then
+            channels.ChannelName:fireServer("hello", 123)
         end
     end,
 }
@@ -173,6 +196,7 @@ return {
 
 ## Credits
 - **[ProfileStore](https://github.com/MadStudioRoblox/ProfileStore)** by **loleris** - Used for DataStore handling in the `DataStoreService` module
+- **[Jolt](https://github.com/ToriumSlurs/Jolt)** by **ToriumSlurs** - Used for network handling in the `NetworkHandler`'s modules
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details
