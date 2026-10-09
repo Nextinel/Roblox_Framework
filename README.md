@@ -1,6 +1,25 @@
 # Roblox Framework
 Server-client framework to build your games easily
 
+## Table of Contents
+- [**The Problem**](#the-problem) - Why this framework exists
+- [**Support & Community**](#support--community) - Where to get help
+- [**Contributing**](#contributing) - How to help the project
+- [**Installation**](#installation) - How to set it up in 5 minutes
+- [**Updates**](#updates) - How the auto-updater works
+- [**Features**](#features) - What's inside the box
+- [**Structure**](#structure) - Folder layout and where to put your modules
+- [**Usage**](#usage) - How to write your first module
+- [**Quick Example (Server code)**](#quick-example-server-code) - Before vs after
+- [**Full API Reference**](#full-api-reference) - All available lifecycle hooks
+- [**Network (Remotes)**](#network-remotes) - Client-server communication via Jolt
+- [**Dependency Injection**](#dependency-injection) - How modules depend on each other
+- [**Credits**](#credits) - Third-party libraries used
+- [**License**](#license) - MIT
+
+## The problem
+Every new Roblox project starts with the same boilerplate: wiring up remotes, setting up player data, and managing module loading. Nextinel Framework eliminates that boilerplate so you can focus on your game
+
 ## Support & Community
 - **Issues:** If you found a bug or have a suggestion, please open an [Issue](../../issues)
 
@@ -26,10 +45,11 @@ The framework checks for updates automatically on server start. If a new version
 To update: download the new `.rbxm` from the Releases tab and replace the old files in your game
 
 ## Features
-- **Network Handlers** - Client & server handlers with built-in rate limits and validators
+- **Network Handlers** - Client & server handlers with built-in rate limits and validators. Works over `Jolt` API
 - **Loading Screen** - Built-in loading screen
 - **DataStoreService** - Module with Migrator, built on ProfileStore
 - **Version Checker** - Built-in version checker that checks for updates on server start
+- **Dependency Injector** - Modules declare their dependencies, and the framework resolves them in the correct order
 
 ## Structure
 - ReplicatedStorage
@@ -43,42 +63,54 @@ To update: download the new `.rbxm` from the Releases tab and replace the old fi
   - Client
  
 ## Usage
-
 The framework is based on **modules**. You don't need to write `while true do` loops or manually connect `PlayerAdded`. Just create a `ModuleScript` inside the specific folders, return a table with lifecycle hooks, and the framework will handle the rest
 
 - **Server modules:** `ServerScriptService.Modules.Initialize`
 - **Client modules:** `ReplicatedStorage.Modules.Initialize`
 
-### Basic Module Example (Server)
+## Quick Example (Server code)
+### Without Nextinel:
+```lua
+local players = game:GetService("Players")
+
+players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        local humanoid = character:WaitForChild("Humanoid")
+        -- ...
+    end)
+end)
+```
+
+### With Nextinel:
+```lua
+return {
+    characterAdded = function(character, player)
+        -- ...
+    end,
+
+	humanoidAdded = function(humanoid, player)
+		-- ...
+	end
+}
+```
+
+## Full API Reference
+### Server module Hooks
 ```lua
 return {
     -- Dependencies (optional)
     dependencies = {"BackpackHandler"},
     
     -- Called once on server start. Dependencies are injected here
-    init = function(dependingServices)
-        local backpackHandler = dependingServices.BackpackHandler
-        print("Server module initialized!")
-        -- // ...
-    end,
+    init = function(dependingServices) end,
     
     -- Called every Heartbeat (spread across 3 buckets for performance)
-    update = function(deltaTime)
-        -- // ...
-    end,
+    update = function(deltaTime) end,
     
     -- Player lifecycle
-    playerAdded = function(player)
-        print(player.Name .. " joined!")
-    end,
-    
-    playerDataLoaded = function(player, profile)
-        print(player.Name .. "'s data loaded:", profile)
-    end,
-    
-    playerRemoving = function(player)
-        print(player.Name .. " is leaving.")
-    end,
+    playerAdded = function(player) end,
+    playerDataLoaded = function(player, profile) end,
+    playerRemoving = function(player) end,
     
     -- Character lifecycle
     characterAdded = function(character, player) end,
@@ -88,7 +120,7 @@ return {
 }
 ```
 
-### Basic Module Example (Client)
+### Client module Hooks
 ```lua
 return {
     -- Called synchronously on start
@@ -101,9 +133,7 @@ return {
     update = function(deltaTime) end,
     
     -- Called after the Loading Screen finishes and assets are preloaded
-    clientReady = function()
-        print("Client is fully loaded!")
-    end,
+    clientReady = function() end,
     
     -- Character lifecycle (local player only)
     characterAdded = function(character) end,
