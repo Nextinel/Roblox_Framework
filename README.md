@@ -220,6 +220,7 @@ return {
     end,
 }
 ```
+Why use the network object instead of getting the Jolt object directly? Because the network object automatically enforces rate limits, so you dont have to implement them yourself
 
 ## Dependency Injection
 If Module A needs Module B, just list it in `dependencies`. The framework sorts the initialization order automatically (via `DependencyResolver`) so Module B is initialized before Module A. If Module B fails, Module A will gracefully skip its own `init` with a warning
