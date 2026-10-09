@@ -168,8 +168,14 @@ return {
             [1] = "string",
             [2] = "number"
         },
-        
-        onEvent = function(name, count)
+
+		-- Server:
+        onEvent = function(player, name, count)
+            print(player.Name, "received:", name, count)
+        end,
+
+		-- Client:
+		onEvent = function(name, count)
             print("Received:", name, count)
         end,
     },
