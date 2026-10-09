@@ -161,7 +161,7 @@ return {
 ```
 
 ### Firing (Client):
-If your client module needs to send data to the server, use `setupFireServer`. The framework will find the remote and give you a network object
+If your client module needs to send data to the server, use `setupFireServer`. The framework will create channel with `Jolt` and give you a network object
 ```lua
 local channels = {}
 
