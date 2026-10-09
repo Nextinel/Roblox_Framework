@@ -17,11 +17,12 @@ Server-client framework to build your games easily
 - [**Credits**](#credits) - Third-party libraries used
 - [**License**](#license) - MIT
 
-## The problem
+## The Problem
 Every new Roblox project starts with the same boilerplate: wiring up remotes, setting up player data, and managing module loading. Nextinel Framework eliminates that boilerplate so you can focus on your game
 
 ## Support & Community
 - **Issues:** If you found a bug or have a suggestion, please open an [Issue](../../issues)
+- **DevForum:** [Nextinel Framework](https://devforum.roblox.com/t/open-source-nextinel-framework-my-modular-serverclient-setup/4921951) - ask questions, share feedback, or report bugs here
 
 ## Contributing
 Pull requests are welcome! If you want to add a new feature or fix a bug:
@@ -55,12 +56,20 @@ To update: download the new `.rbxm` from the Releases tab and replace the old fi
 - ReplicatedStorage
   - Assets
   - Modules
+    - Global
+    - Initialize
   - HUD
 - ServerScriptService
   - Modules
+    - Global
+    - Initialize
   - Server
 - StarterPlayerScripts
   - Client
+
+> Global - modules that are shared or used by other modules (e.g., utilities, handlers)
+
+> Initialize - modules that should be initialized at server/client start (e.g., your gameplay logic)
  
 ## Usage
 The framework is based on **modules**. You don't need to write `while true do` loops or manually connect `PlayerAdded`. Just create a `ModuleScript` inside the specific folders, return a table with lifecycle hooks, and the framework will handle the rest
