@@ -15,6 +15,7 @@ Server-client framework to build your games easily
 - [**Network (Remotes)**](#network-remotes) - Client-server communication via Jolt
 - [**Dependency Injection**](#dependency-injection) - How modules depend on each other
 - [**Credits**](#credits) - Third-party libraries used
+- [**Demo Place**](#demo-place) - Download the demo place
 - [**License**](#license) - MIT
 
 ## The Problem
