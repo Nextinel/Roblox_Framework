@@ -162,6 +162,9 @@ Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`)
 return {
     network = {
         channel = "ChannelName",
+
+		-- Optional: Allow extra fields in the payload on `false` (Default: true)
+		shouldCheckExtrafields = false,
         
         -- Optional: Type and argument count validation
         contract = {
@@ -239,6 +242,9 @@ return {
     end,
 }
 ```
+
+## Demo Place
+Try it: [Wave Survival (Download)](https://github.com/Nextinel/Roblox_Framework/raw/main/Demo%20Place%20-%20Waves%20Survival%20(Nextinel%20Framework).rbxl) - a small showcase of **Nextinel** in action. Covers networking, module lifecycle, profiles, and data saving
 
 ## Credits
 - **[ProfileStore](https://github.com/MadStudioRoblox/ProfileStore)** by **loleris** - Used for DataStore handling in the `DataStoreService` module
