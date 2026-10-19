@@ -5,7 +5,7 @@ Server-client framework to build your games easily
 - [**The Problem**](#the-problem) - Why this framework exists
 - [**Support & Community**](#support--community) - Where to get help
 - [**Contributing**](#contributing) - How to help the project
-- [**Installation**](#installation) - How to set it up in 5 minutes
+- [**Installation**](#installation) - Plugin or manual setup
 - [**Updates**](#updates) - How the auto-updater works
 - [**Features**](#features) - What's inside the box
 - [**Structure**](#structure) - Folder layout and where to put your modules
@@ -33,14 +33,24 @@ Pull requests are welcome! If you want to add a new feature or fix a bug:
 4. Open a Pull Request
 
 ## Installation
-1. Go to the [Releases](../../releases) tab
-2. Download the latest `framework.rbxm`
-3. Open the `.rbxm` file in Roblox Studio
+
+There are two ways to install Nextinel: using the Studio Plugin (recommended) or manually downloading the `.rbxm` file.
+
+### Method 1: Studio Plugin (Recommended)
+1. Install the [Nextinel Builder](https://create.roblox.com/store/asset/133932396555559/Nextinel-Builder) from the Roblox Creator Store.
+2. Open your project in Roblox Studio.
+3. Click **"Create structure"** to automatically generate all folders, scripts, and boilerplate modules.
+4. Enable **Allow HTTP Requests** in `Game Settings` -> `Security` (required for the Version Checker).
+
+### Method 2: Manual Installation
+1. Go to the [Releases](../../releases) tab.
+2. Download the latest `framework.rbxm`.
+3. Open the `.rbxm` file in Roblox Studio.
 4. Expand the `Framework` folder and move its contents into the services with the same name:
    - `ReplicatedStorage`
    - `ServerScriptService`
    - `StarterPlayerScripts`
-5. Enable **Allow HTTP Requests** in `Game Settings` -> `Security` (required for the Version Checker)
+5. Enable **Allow HTTP Requests** in `Game Settings` -> `Security`.
 
 ## Updates
 The framework checks for updates automatically on server start. If a new version is available, it will warn in the output
@@ -52,6 +62,7 @@ To update: download the new `.rbxm` from the Releases tab and replace the old fi
 - **DataStoreService** - Module with Migrator, built on ProfileStore
 - **Version Checker** - Built-in version checker that checks for updates on server start
 - **Dependency Injector** - Modules declare their dependencies, and the framework resolves them in the correct order
+- **Studio Plugin** - One-click setup, auto-generates folder structure and typed boilerplate modules
 
 ## Structure
 - ReplicatedStorage
@@ -75,6 +86,8 @@ To update: download the new `.rbxm` from the Releases tab and replace the old fi
 ## Usage
 The framework is based on **modules**. You don't need to write `while true do` loops or manually connect `PlayerAdded`. Just create a `ModuleScript` inside the specific folders, return a table with lifecycle hooks, and the framework will handle the rest
 
+> **Tip:** If you installed the Studio Plugin, you can just click **"New Server Module"** or **"New Client Module"** on the toolbar. It will automatically create the file with `Types` and boilerplate code
+
 - **Server modules:** `ServerScriptService.Modules.Initialize`
 - **Client modules:** `ReplicatedStorage.Modules.Initialize`
 
@@ -93,6 +106,9 @@ end)
 
 ### With Nextinel:
 ```lua
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local Types = require(replicatedStorage.Modules.Global.Types)
+
 return {
     characterAdded = function(character, player)
         -- ...
@@ -101,7 +117,7 @@ return {
 	humanoidAdded = function(humanoid, player)
 		-- ...
 	end
-}
+} :: Types.ServerModule
 ```
 
 ## Full API Reference
