@@ -110,10 +110,10 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local Types = require(replicatedStorage.Modules.Global.Types)
 
 return {
-    characterAdded = function(character, player)
-        -- ...
-    end,
-
+	characterAdded = function(character, player)
+		-- ...
+	end,
+	
 	humanoidAdded = function(humanoid, player)
 		-- ...
 	end
@@ -177,28 +177,28 @@ Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`)
 ### Listening to a Remote (Server & Client):
 ```lua
 return {
-    network = {
-        channel = "ChannelName",
-
+	network = {
+		channel = "ChannelName",
+		
 		-- Optional: Allow extra fields in the payload on `false` (Default: true)
 		shouldCheckExtrafields = false,
-        
-        -- Optional: Type and argument count validation
-        contract = {
-            [1] = "string",
-            [2] = "number"
-        },
-
+		
+		-- Optional: Type and argument count validation
+		contract = {
+			[1] = "string",
+			[2] = "number"
+		},
+		
 		-- Server:
-        onEvent = function(player, name, count)
-            print(player.Name, "received:", name, count)
-        end,
-
+		onEvent = function(player, name, count)
+			print(player.Name, "received:", name, count)
+		end,
+		
 		-- Client:
 		onEvent = function(name, count)
-            print("Received:", name, count)
-        end,
-    },
+			print("Received:", name, count)
+		end,
+	},
 }
 ```
 > **Validator Documentation (for contract):** For advanced validation rules (optional fields, nested tables, caching), please read [VALIDATOR.md](VALIDATOR.md)
@@ -220,7 +220,7 @@ return {
 	
 	update = function(dt)
 		channel:FireAll("tick", dt)
-        -- channel:FireExcept(player, "skip") -- skip specific player
+		-- channel:FireExcept(player, "skip") -- skip specific player
 	end,
 }
 ```
