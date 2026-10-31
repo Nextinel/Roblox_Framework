@@ -54,7 +54,7 @@ local data = {
     count = 5
 }
 
-local success, result = Validator.check(data, template)
+local success, result = Validator(data, template)
 
 if success then
     print("Data is valid!")
