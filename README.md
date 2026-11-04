@@ -110,13 +110,13 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local Types = require(replicatedStorage.Modules.Global.Types)
 
 return {
-	characterAdded = function(character, player)
-		-- ...
-	end,
-	
-	humanoidAdded = function(humanoid, player)
-		-- ...
-	end
+    characterAdded = function(character, player)
+        -- ...
+    end,
+    
+    humanoidAdded = function(humanoid, player)
+        -- ...
+    end
 } :: Types.ServerModule
 ```
 
@@ -143,6 +143,9 @@ return {
     characterLoaded = function(character, humanoid, root, player) end,
     humanoidAdded = function(humanoid, player) end,
     characterRemoved = function(character, player) end,
+
+    -- Server lifecycle
+    onServerLowMemory = function() end,
 }
 ```
 
