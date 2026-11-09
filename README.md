@@ -12,7 +12,7 @@ Server-client framework to build your games easily
 - [**Usage**](#usage) - How to write your first module
 - [**Quick Example (Server code)**](#quick-example-server-code) - Before vs after
 - [**Full API Reference**](#full-api-reference) - All available lifecycle hooks
-- [**Network (Remotes)**](#network-remotes) - Client-server communication via Jolt
+- [**Network**](#network) - Client-server communication via Jolt
 - [**Dependency Injection**](#dependency-injection) - How modules depend on each other
 - [**Credits**](#credits) - Third-party libraries used
 - [**Demo Place**](#demo-place) - Download the demo place
@@ -53,16 +53,18 @@ There are two ways to install Nextinel: using the Studio Plugin (recommended) or
 5. Enable **Allow HTTP Requests** in `Game Settings` -> `Security`.
 
 ## Updates
-The framework checks for updates automatically on server start. If a new version is available, it will warn in the output
-To update: download the new `.rbxm` from the Releases tab and replace the old files in your game
+The framework checks for updates automatically on server start. If a new version is available, it will warn in the output.
+
+To update: install the latest plugin version and click **`Update Structure`** in the Nextinel Builder toolbar. It will replace all Framework scripts automatically, keeping your `Initialize` modules untouched
 
 ## Features
-- **Network Handlers** - Client & server handlers with built-in rate limits and validators. Works over `Jolt` API
+- **Network Handlers** - Client & server handlers with **Remote** and **Invoke** separation, built-in rate limits and validators. Works over `Jolt` API
 - **Loading Screen** - Built-in loading screen
 - **DataStoreService** - Module with Migrator, built on ProfileStore
 - **Version Checker** - Built-in version checker that checks for updates on server start
 - **Dependency Injector** - Modules declare their dependencies, and the framework resolves them in the correct order
-- **Studio Plugin** - One-click setup, auto-generates folder structure and typed boilerplate modules
+- **Studio Plugin** - One-click setup, auto-generates folder structure, typed modules, and updates existing framework scripts via `Update Structure`
+- **Protected Require** - If a module fails to load, the error is caught and logged — one broken module won't stop the rest
 
 ## Structure
 - ReplicatedStorage
@@ -124,6 +126,9 @@ return {
 ### Server module Hooks
 ```lua
 return {
+	priority = 0, -- optional
+    skipHangWatch = false, -- optional
+
     -- Dependencies (optional)
     dependencies = {"BackpackHandler"},
     
@@ -141,17 +146,23 @@ return {
     -- Character lifecycle
     characterAdded = function(character, player) end,
     characterLoaded = function(character, humanoid, root, player) end,
+    characterAppearanceLoaded = function(character, player) end,
     humanoidAdded = function(humanoid, player) end,
     characterRemoved = function(character, player) end,
 
     -- Server lifecycle
     onServerLowMemory = function() end,
+    onServerRestartScheduled = function(restartTime, source, attributes) end,
+    bindToClose = function(source) end,
 }
 ```
 
 ### Client module Hooks
 ```lua
 return {
+	priority = 0, -- optional
+    skipHangWatch = false, -- optional
+
     -- Called synchronously on start
     init = function(dependingServices) end,
     
@@ -172,39 +183,69 @@ return {
 }
 ```
 
-## Network (Remotes)
-You don't need to manually find Remotes or connect `OnServerEvent`/`OnClientEvent`. Just define a `network` table inside your module
+## Network
+You don't need to manually find Remotes or connect `OnServerEvent`/`OnClientEvent`. Just define a `network` table inside your module.
 
-Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`)
+Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`). The `network` table can contain `remote` (for events), `invoke` (for request-response), or both.
 
-### Listening to a Remote (Server & Client):
+### Listening to a Remote (Server & Client)
 ```lua
 return {
 	network = {
-		channel = "ChannelName",
-		
-		-- Optional: Allow extra fields in the payload on `false` (Default: true)
-		shouldCheckExtrafields = false,
-		
-		-- Optional: Type and argument count validation
-		contract = {
-			[1] = "string",
-			[2] = "number"
+		remote = {
+			channel = "RemoteChannel",
+			
+			-- Optional: Allow extra fields in the payload (Default: true)
+			shouldCheckExtrafields = false,
+			
+			-- Optional: Type and argument count validation
+			contract = {
+				[1] = "string",
+				[2] = "number"
+			},
+			
+			-- Server: player is passed first
+			onEvent = function(player, name, count)
+				print(player.Name, "received:", name, count)
+			end,
+			
+			-- Client: no player argument
+			-- onEvent = function(name, count)
+			--     print("Received:", name, count)
+			-- end,
 		},
-		
-		-- Server:
-		onEvent = function(player, name, count)
-			print(player.Name, "received:", name, count)
-		end,
-		
-		-- Client:
-		onEvent = function(name, count)
-			print("Received:", name, count)
-		end,
 	},
 }
 ```
+
 > **Validator Documentation (for contract):** For advanced validation rules (optional fields, nested tables, caching), please read [VALIDATOR.md](VALIDATOR.md)
+
+### Listening to an Invoke (Server & Client)
+```lua
+return {
+	network = {
+		invoke = {
+			channel = "InvokeChannel",
+			
+			-- Optional: same as remote
+			shouldCheckExtrafields = false,
+			contract = {[1] = "string"},
+			
+			-- Server: player is passed first
+			onInvoke = function(player, reason)
+				return "ok", player.Name
+			end,
+			
+			-- Client: no player argument
+			onInvoke = function(reason)
+				return "ok", reason
+			end,
+		},
+	},
+}
+```
+
+> **Invoke limits:** Concurrent requests and requests-per-second are limited per player and channel. Exceeding the limit rejects the request
 
 ### Firing (Server):
 Server modules get the channel directly through `Jolt`:
@@ -214,38 +255,40 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 
 local jolt = require(replicatedStorage.Modules.Global.Jolt)
 
-local channel = jolt.Server("ChannelName")
+local remoteChannel = jolt.Server("RemoteChannel")
+local invokeChannel = jolt.Server("InvokeChannel")
 
 return {
 	playerAdded = function(player)
-		channel:Fire(player, "welcome")
-	end,
-	
-	update = function(dt)
-		channel:FireAll("tick", dt)
-		-- channel:FireExcept(player, "skip") -- skip specific player
+		remoteChannel:Fire(player, "welcome")
+		remoteChannel:FireUnreliable(player, "ping")
+		
+		local a, b = invokeChannel:Invoke(player, "data")
 	end,
 }
 ```
 
 ### Firing (Client):
-If your client module needs to send data to the server, use `setupFireServer`. The framework will create channel with `Jolt` and give you a network object
+Use setupFireServer to get network objects
 ```lua
 local channels = {}
 
 return {
     setupFireServer = {
-        channelsNames = {"ChannelName"},
+        channelsNames = {"RemoteChannel", "InvokeChannel"},
         
-        setupRemote = function(name, network)
-            channels[name] = network
+        setupChannel = function(name, networkObject)
+            channels[name] = networkObject
         end,
     },
     
     update = function()
-        if channels.ChannelName then
-            channels.ChannelName:fireServer("hello", 123)
+        if channels.RemoteChannel then
+            channels.RemoteChannel:fireServer("hello", 123)
+            channels.RemoteChannel:fireServerUnreliable("tick")
         end
+        
+        local data = channels.InvokeChannel:invoke("request")
     end,
 }
 ```
@@ -264,7 +307,7 @@ return {
 ```
 
 ## Demo Place
-Try it: [Wave Survival (Download)](https://github.com/Nextinel/Roblox_Framework/raw/main/Demo%20Place%20-%20Waves%20Survival%20(Nextinel%20Framework).rbxl) - a small showcase of **Nextinel** in action. Covers networking, module lifecycle, profiles, and data saving
+Try it: [Wave Survival (Download)](https://github.com/Nextinel/Roblox_Framework/raw/main/Demo%20Place%20-%20Waves%20Survival%20(Nextinel%20Framework).rbxl) - a small showcase of **Nextinel** in action. Covers networking, module lifecycle, profiles, and data saving (Framework version in the place: v3.0.0)
 
 ## Credits
 - **[ProfileStore](https://github.com/MadStudioRoblox/ProfileStore)** by **loleris** - Used for DataStore handling in the `DataStoreService` module
