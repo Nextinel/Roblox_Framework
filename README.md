@@ -237,9 +237,9 @@ return {
 			end,
 			
 			-- Client: no player argument
-			onInvoke = function(reason)
-				return "ok", reason
-			end,
+			-- onInvoke = function(reason)
+			--     return "ok", reason
+			-- end,
 		},
 	},
 }
@@ -269,7 +269,7 @@ return {
 ```
 
 ### Firing (Client):
-Use setupFireServer to get network objects
+Use `setupFireServer` to get network objects
 ```lua
 local channels = {}
 
