@@ -126,7 +126,7 @@ return {
 ### Server module Hooks
 ```lua
 return {
-	priority = 0, -- optional
+    priority = 0, -- optional
     skipHangWatch = false, -- optional
 
     -- Dependencies (optional)
@@ -160,7 +160,7 @@ return {
 ### Client module Hooks
 ```lua
 return {
-	priority = 0, -- optional
+    priority = 0, -- optional
     skipHangWatch = false, -- optional
 
     -- Called synchronously on start
@@ -191,30 +191,30 @@ Network is built on **Jolt** (`ReplicatedStorage.Modules.Global.Jolt`). The `net
 ### Listening to a Remote (Server & Client)
 ```lua
 return {
-	network = {
-		remote = {
-			channel = "RemoteChannel",
-			
-			-- Optional: Allow extra fields in the payload (Default: true)
-			shouldCheckExtrafields = false,
-			
-			-- Optional: Type and argument count validation
-			contract = {
-				[1] = "string",
-				[2] = "number"
-			},
-			
-			-- Server: player is passed first
-			onEvent = function(player, name, count)
-				print(player.Name, "received:", name, count)
-			end,
-			
-			-- Client: no player argument
-			-- onEvent = function(name, count)
-			--     print("Received:", name, count)
-			-- end,
-		},
-	},
+    network = {
+        remote = {
+            channel = "RemoteChannel",
+            
+            -- Optional: Allow extra fields in the payload (Default: true)
+            shouldCheckExtrafields = false,
+            
+            -- Optional: Type and argument count validation
+            contract = {
+                [1] = "string",
+                [2] = "number"
+            },
+            
+            -- Server: player is passed first
+            onEvent = function(player, name, count)
+                print(player.Name, "received:", name, count)
+            end,
+            
+            -- Client: no player argument
+            -- onEvent = function(name, count)
+            --     print("Received:", name, count)
+            -- end,
+        },
+    },
 }
 ```
 
@@ -223,25 +223,25 @@ return {
 ### Listening to an Invoke (Server & Client)
 ```lua
 return {
-	network = {
-		invoke = {
-			channel = "InvokeChannel",
-			
-			-- Optional: same as remote
-			shouldCheckExtrafields = false,
-			contract = {[1] = "string"},
-			
-			-- Server: player is passed first
-			onInvoke = function(player, reason)
-				return "ok", player.Name
-			end,
-			
-			-- Client: no player argument
-			-- onInvoke = function(reason)
-			--     return "ok", reason
-			-- end,
-		},
-	},
+    network = {
+        invoke = {
+            channel = "InvokeChannel",
+            
+            -- Optional: same as remote
+            shouldCheckExtrafields = false,
+            contract = {[1] = "string"},
+            
+            -- Server: player is passed first
+            onInvoke = function(player, reason)
+                return "ok", player.Name
+            end,
+            
+            -- Client: no player argument
+            -- onInvoke = function(reason)
+            --     return "ok", reason
+            -- end,
+        },
+    },
 }
 ```
 
